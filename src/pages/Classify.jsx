@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { Client } from '@gradio/client';
 import {
   Upload, Camera, Video, X, Loader2, CheckCircle2,
   AlertTriangle, Info, Leaf, Calendar,
@@ -14,11 +13,38 @@ const TABS = [
   { id: 'live', label: 'Live Detection', icon: Video },
 ];
 
+// Shrinks the image so the request stays under Vercel's ~4.5 MB body limit
+async function toResizedDataUrl(file, maxSize = 1024) {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, maxSize / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL('image/jpeg', 0.85);
+}
+
+// Calls our own /api/predict (Vercel serverless function), which calls Hugging Face.
+// The browser never talks to hf.space directly, so there is no CORS problem.
 async function callHuggingFaceAPI(file) {
-  const client = await Client.connect(`${window.location.origin}/hf`);
-  const result = await client.predict('/predict', { image: file });
-  // result.data[0] is a flat array of {label, confidence} objects sorted by confidence desc
-  const rawList = Array.isArray(result.data[0]) ? result.data[0] : result.data;
+  const image = await toResizedDataUrl(file);
+
+  const res = await fetch('/api/predict', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ image }),
+  });
+
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error(`Server returned an invalid response (${res.status})`);
+  }
+  if (!res.ok) throw new Error(data?.error || `Request failed (${res.status})`);
+
+  // data[0] is a flat array of {label, confidence} objects sorted by confidence desc
+  const rawList = Array.isArray(data[0]) ? data[0] : data;
   if (!rawList || rawList.length === 0) throw new Error('No result received from model. Please try again.');
   return {
     label: rawList[0].label,
