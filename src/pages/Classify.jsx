@@ -15,7 +15,7 @@ const TABS = [
 ];
 
 async function callHuggingFaceAPI(file) {
-  const client = await Client.connect('Naveen2916/plantdisease');
+  const client = await Client.connect(`${window.location.origin}/hf`);
   const result = await client.predict('/predict', { image: file });
   // result.data[0] is a flat array of {label, confidence} objects sorted by confidence desc
   const rawList = Array.isArray(result.data[0]) ? result.data[0] : result.data;
