@@ -3,10 +3,9 @@ import { MessageCircle, X, Send, Leaf, Bot } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Cloudflare Workers AI — calls go through the Vite /cf-ai proxy to avoid CORS.
-// The proxy (vite.config.js) injects the Authorization header server-side.
+// Cloudflare Workers AI — calls go through /api/cf-ai (Vercel serverless fn).
+// Credentials are kept server-side; never exposed to the browser.
 // ──────────────────────────────────────────────────────────────────────────────
-const CF_ACCOUNT_ID = import.meta.env.VITE_CF_ACCOUNT_ID;
 const CF_MODEL = '@cf/meta/llama-3.1-8b-instruct';
 
 const SYSTEM_PROMPT = `You are PlantAI Assistant — a friendly, concise plant-disease expert chatbot embedded on the PlantAI website.
@@ -16,12 +15,13 @@ If the question is unrelated to plants or agriculture, politely say so and redir
 Keep answers short (2–4 sentences). Use bullet points when listing steps or treatments.`;
 
 async function askCloudflareAI(messages) {
-    // /cf-ai  → proxied by Vite to https://api.cloudflare.com/client/v4
-    const url = `/cf-ai/accounts/${CF_ACCOUNT_ID}/ai/run/${CF_MODEL}`;
+    // /api/cf-ai → Vercel serverless function that proxies to Cloudflare AI
+    const url = '/api/cf-ai';
     const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+            model: CF_MODEL,
             messages: [
                 { role: 'system', content: SYSTEM_PROMPT },
                 ...messages,
