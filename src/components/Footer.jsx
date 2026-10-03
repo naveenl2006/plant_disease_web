@@ -1,7 +1,16 @@
 import { Link } from 'react-router-dom';
 import { Leaf, Heart } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export default function Footer() {
+  const { t } = useLanguage();
+
+  const links = [
+    { to: '/', label: t.nav.home },
+    { to: '/classify', label: t.nav.classification },
+    { to: '/about', label: t.nav.about },
+  ];
+
   return (
     <footer className="relative border-t border-white/10 bg-black/20 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -15,19 +24,15 @@ export default function Footer() {
               <span className="text-white font-bold text-lg">Plant<span className="text-green-400">AI</span></span>
             </div>
             <p className="text-green-100/50 text-sm leading-relaxed max-w-xs">
-              AI-powered plant disease detection to help farmers protect crops and maximize yield.
+              {t.footer.tagline}
             </p>
           </div>
 
           {/* Links */}
           <div className="space-y-3">
-            <h3 className="text-white font-semibold text-sm uppercase tracking-wider">Navigation</h3>
+            <h3 className="text-white font-semibold text-sm uppercase tracking-wider">{t.footer.navigation}</h3>
             <div className="space-y-2">
-              {[
-                { to: '/', label: 'Home' },
-                { to: '/classify', label: 'Classification' },
-                { to: '/about', label: 'About' },
-              ].map(({ to, label }) => (
+              {links.map(({ to, label }) => (
                 <Link
                   key={to}
                   to={to}
@@ -41,7 +46,7 @@ export default function Footer() {
 
           {/* Info */}
           <div className="space-y-3">
-            <h3 className="text-white font-semibold text-sm uppercase tracking-wider">Powered By</h3>
+            <h3 className="text-white font-semibold text-sm uppercase tracking-wider">{t.footer.poweredBy}</h3>
             <div className="space-y-2 text-sm text-green-100/50">
               <p>🤗 Hugging Face Spaces</p>
               <p>🧠 Deep Learning Vision Model</p>
@@ -53,10 +58,10 @@ export default function Footer() {
 
         <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-green-100/40 text-sm flex items-center gap-1.5">
-            Built with <Heart className="w-3.5 h-3.5 text-red-400 fill-red-400" /> for farmers & agriculture
+            {t.footer.builtWith} <Heart className="w-3.5 h-3.5 text-red-400 fill-red-400" /> {t.footer.forFarmers}
           </p>
           <p className="text-green-100/40 text-sm">
-            © {new Date().getFullYear()} PlantAI · Disease Classifier
+            © {new Date().getFullYear()} {t.footer.copyright}
           </p>
         </div>
       </div>
