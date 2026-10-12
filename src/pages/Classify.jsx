@@ -87,9 +87,9 @@ function ConfidenceBar({ value, label, isTop }) {
 function DiseaseResult({ result, imageUrl }) {
   const [expandTreatment, setExpandTreatment] = useState(true);
   const [expandUsage, setExpandUsage] = useState(false);
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const r = t.classify.result;
-  const info = getDiseaseInfo(result?.label);
+  const info = getDiseaseInfo(result?.label, lang);
   const severityClass = getSeverityColor(info.severity);
 
   const handleDownload = () => {
