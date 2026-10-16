@@ -355,13 +355,32 @@ class TestClassifyPage(BaseTest):
             if os.path.exists(tmp):
                 os.remove(tmp)
 
+    # Path to the real plant image used for upload testing
+    UPLOAD_IMAGE_PATH = r"D:\plantweb\2_transformed_4_copy_0.jpg"
+
+    def test_26b_upload_real_image(self):
+        """Uploading a real plant image shows the image preview"""
+        if not os.path.exists(self.UPLOAD_IMAGE_PATH):
+            self.skipTest(f"Test image not found: {self.UPLOAD_IMAGE_PATH}")
+
+        self._go("/classify")
+        file_input = self._find(By.CSS_SELECTOR, "input[type='file']")
+        file_input.send_keys(self.UPLOAD_IMAGE_PATH)
+        time.sleep(1)
+
+        # Image preview should appear (an <img> inside the drop zone)
+        preview = self._visible(By.CSS_SELECTOR, "div.border-dashed img")
+        self.assertTrue(preview.is_displayed())
+
+
     def test_27_tips_section_visible(self):
         """Tips section is visible at the bottom of the input panel"""
-        # Tips <p> has class text-green-400 with tracking-wide (may not have 'uppercase' in all builds)
-        tips = self._find(By.XPATH, "//p[contains(@class,'text-green-400') and contains(@class,'tracking-wide')]")
+        # Tips heading <p> has classes text-green-400, text-xs, font-semibold, uppercase, tracking-wide
+        tips = self._find(By.XPATH, "//p[contains(@class,'text-green-400') and contains(@class,'font-semibold')]")
         self._scroll_to(tips)
         time.sleep(0.5)
         self.assertTrue(tips.is_displayed())
+
 
     def test_28_ready_state_placeholder_visible(self):
         """Right panel shows 'Ready' placeholder when no image is selected"""
@@ -434,28 +453,23 @@ class TestLanguageSwitcher(BaseTest):
 
     def _open_lang_dropdown(self):
         """Click the Globe / language button to open the dropdown."""
-        # The desktop language button sits inside the hidden-md-flex right-side div.
-        # It always contains a Globe SVG with class 'text-green-400' and a ChevronDown.
-        # Most reliable: the button that contains both a Globe icon AND a ChevronDown icon.
-        lang_btn = self._click(
-            By.XPATH,
-            "//div[contains(@class,'hidden') and contains(@class,'md:flex')]//button[.//svg[contains(@class,'lucide-globe')] or .//svg[contains(@class,'lucide-chevron-down')]]"
-        )
+        # Use the stable id we added to the desktop language button
+        lang_btn = self._click(By.ID, "lang-toggle-btn")
         time.sleep(SLEEP)
         return lang_btn
 
     def test_36_language_dropdown_opens(self):
         """Clicking the language button opens a dropdown"""
         self._open_lang_dropdown()
-        # The dropdown renders buttons with flag + label text
-        dropdown = self._visible(By.XPATH, "//button[contains(.,'Tamil') or contains(.,'Telugu') or contains(.,'తెలుగు')]")
+        # The dropdown renders buttons with id lang-option-ta, lang-option-te, etc.
+        dropdown = self._visible(By.CSS_SELECTOR, "#lang-dropdown")
         self.assertTrue(dropdown.is_displayed())
 
     def test_37_switch_to_tamil(self):
         """Switching to Tamil changes visible text"""
         self._open_lang_dropdown()
         time.sleep(0.5)
-        self._click(By.XPATH, "//button[contains(.,'Tamil')]")
+        self._click(By.ID, "lang-option-ta")
         time.sleep(SLEEP)
         body = self.driver.find_element(By.TAG_NAME, "body").text
         self.assertTrue(len(body) > 0)
@@ -464,7 +478,7 @@ class TestLanguageSwitcher(BaseTest):
         """Switching to Telugu changes visible text"""
         self._open_lang_dropdown()
         time.sleep(0.5)
-        self._click(By.XPATH, "//button[contains(.,'తెలుగు') or contains(.,'Telugu')]")
+        self._click(By.ID, "lang-option-te")
         time.sleep(SLEEP)
         body = self.driver.find_element(By.TAG_NAME, "body").text
         self.assertTrue(len(body) > 0)
@@ -474,12 +488,12 @@ class TestLanguageSwitcher(BaseTest):
         # First go Tamil
         self._open_lang_dropdown()
         time.sleep(0.5)
-        self._click(By.XPATH, "//button[contains(.,'Tamil')]")
+        self._click(By.ID, "lang-option-ta")
         time.sleep(SLEEP)
         # Then back to English
         self._open_lang_dropdown()
         time.sleep(0.5)
-        self._click(By.XPATH, "//button[contains(.,'English')]")
+        self._click(By.ID, "lang-option-en")
         time.sleep(SLEEP)
         body = self.driver.find_element(By.TAG_NAME, "body").text
         self.assertIn("Plant", body)
@@ -487,10 +501,10 @@ class TestLanguageSwitcher(BaseTest):
     def test_40_active_language_has_checkmark(self):
         """The currently active language shows a checkmark in the dropdown"""
         self._open_lang_dropdown()
-        # The dropdown is a sibling div rendered conditionally (not absolute-positioned in all themes)
+        # The active language option has a checkmark span scoped to the dropdown
         checkmark = self._find(
             By.XPATH,
-            "//span[text()='✓']"
+            "//*[@id='lang-dropdown']//span[text()='✓']"
         )
         self.assertIsNotNone(checkmark)
 
@@ -501,7 +515,7 @@ class TestLanguageSwitcher(BaseTest):
         self.driver.find_element(By.TAG_NAME, "h1").click()
         time.sleep(SLEEP)
         # The dropdown is conditionally rendered — after closing it should not exist in DOM
-        els = self.driver.find_elements(By.XPATH, "//button[contains(.,'Tamil') and contains(.,'🇮🇳')]")
+        els = self.driver.find_elements(By.ID, "lang-dropdown")
         # Either not in DOM or not displayed
         for el in els:
             self.assertFalse(el.is_displayed())

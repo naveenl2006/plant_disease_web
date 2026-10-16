@@ -5,8 +5,8 @@ const LanguageContext = createContext(null);
 
 export const LANGUAGES = [
     { code: 'en', label: 'English', flag: '🇬🇧' },
-    { code: 'ta', label: 'தமிழ்', flag: '🇮🇳' },
-    { code: 'te', label: 'తెలుగు', flag: '🇮🇳' },
+    { code: 'ta', label: 'Tamil', flag: '🇮🇳' },
+    { code: 'te', label: 'Telugu', flag: '🇮🇳' },
 ];
 
 export function LanguageProvider({ children }) {

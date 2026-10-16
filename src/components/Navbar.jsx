@@ -59,8 +59,8 @@ export default function Navbar() {
                 key={to}
                 to={to}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(to)
-                    ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                    : 'text-green-100/70 hover:text-green-300 hover:bg-white/5'
+                  ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                  : 'text-green-100/70 hover:text-green-300 hover:bg-white/5'
                   }`}
               >
                 {label}
@@ -73,6 +73,7 @@ export default function Navbar() {
             {/* Language Selector */}
             <div className="relative" ref={langRef}>
               <button
+                id="lang-toggle-btn"
                 onClick={() => setLangOpen(!langOpen)}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-green-100/70 hover:text-green-300 hover:bg-white/5 transition-all duration-200 border border-transparent hover:border-green-500/20"
               >
@@ -82,14 +83,15 @@ export default function Navbar() {
               </button>
 
               {langOpen && (
-                <div className="absolute right-0 top-full mt-1.5 w-40 glass-dark border border-white/10 rounded-xl shadow-xl overflow-hidden z-50">
+                <div id="lang-dropdown" className="absolute right-0 top-full mt-1.5 w-40 glass-dark border border-white/10 rounded-xl shadow-xl overflow-hidden z-50">
                   {LANGUAGES.map((l) => (
                     <button
                       key={l.code}
+                      id={`lang-option-${l.code}`}
                       onClick={() => { setLang(l.code); setLangOpen(false); }}
                       className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm transition-colors duration-150 ${lang === l.code
-                          ? 'bg-green-500/20 text-green-400 font-medium'
-                          : 'text-green-100/70 hover:bg-white/5 hover:text-white'
+                        ? 'bg-green-500/20 text-green-400 font-medium'
+                        : 'text-green-100/70 hover:bg-white/5 hover:text-white'
                         }`}
                     >
                       <span>{l.flag}</span>
@@ -129,8 +131,8 @@ export default function Navbar() {
               to={to}
               onClick={() => setIsOpen(false)}
               className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(to)
-                  ? 'bg-green-500/20 text-green-400'
-                  : 'text-green-100/70 hover:text-white hover:bg-white/5'
+                ? 'bg-green-500/20 text-green-400'
+                : 'text-green-100/70 hover:text-white hover:bg-white/5'
                 }`}
             >
               {label}
@@ -148,8 +150,8 @@ export default function Navbar() {
                   key={l.code}
                   onClick={() => { setLang(l.code); setIsOpen(false); }}
                   className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${lang === l.code
-                      ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                      : 'text-green-100/60 hover:bg-white/5 hover:text-white'
+                    ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                    : 'text-green-100/60 hover:bg-white/5 hover:text-white'
                     }`}
                 >
                   {l.flag} {l.label}
