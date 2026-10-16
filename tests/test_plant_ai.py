@@ -50,7 +50,7 @@ except ImportError:
 # ──────────────────────────────────────────────────────────────
 # Configuration
 # ──────────────────────────────────────────────────────────────
-BASE_URL = os.environ.get("PLANTAI_URL", "http://localhost:5173")
+BASE_URL = os.environ.get("PLANTAI_URL", "https://plantdoctor-lime.vercel.app")
 TIMEOUT = 10          # default explicit-wait timeout (seconds)
 HEADLESS = os.environ.get("HEADLESS", "0") == "1"  # set HEADLESS=1 for CI
 
